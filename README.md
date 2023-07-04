@@ -6,7 +6,7 @@
 [![codecov](https://codecov.io/gh/gofast-pkg/http/branch/main/graph/badge.svg?token=7TCE3QB21E)](https://codecov.io/gh/gofast-pkg/http)
 [![Release](https://img.shields.io/github/release/gofast-pkg/http?style=flat-square)](https://github.com/gofast-pkg/http/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gofast-pkg/http)](https://goreportcard.com/report/github.com/gofast-pkg/http)
-[![codebeat badge](https://codebeat.co/badges/1771f3ed-bead-4953-bd72-da2c8819962c)](https://codebeat.co/projects/github-com-gofast-pkg-http-main)
+[![codebeat badge](https://codebeat.co/badges/e262f7b7-6269-4305-993c-8532c1c3deb2)](https://codebeat.co/projects/github-com-gofast-pkg-http-main)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fgofast-pkg%2Fhttp.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fgofast-pkg%2Fhttp?ref=badge_shield)
 [![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/gofast-pkg/http/blob/main/LICENSE)
 
