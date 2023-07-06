@@ -1,5 +1,5 @@
 # CHANGELOG
 
-## v0.0.2
+## v0.0.3
 
-- fix readme badges
+- add community standard
