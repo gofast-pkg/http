@@ -10,7 +10,8 @@
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fgofast-pkg%2Fhttp.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fgofast-pkg%2Fhttp?ref=badge_shield)
 [![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/gofast-pkg/http/blob/main/LICENSE)
 
-http package provides tooling around http in Go configured for production usage
+http package provides tooling around http in Go, configured for production usage. The `testify` package provide somes
+tools for configure correctly your unit tests with the http call(s).
 
 ## Install
 
@@ -21,13 +22,31 @@ $> go get github.com/gofast-pkg/http@latest
 ## Usage
 
 ``` Golang
-import github.com/gofast-pkg/http
+// for the application usage
+package main
+
+import "github.com/gofast-pkg/http"
 
 func main() {
   client := http.NewClient()
 
   // do something with your net/http client
 }
+```
+
+``` Golang
+// for the unit tests usage
+package main
+
+import "github.com/gofast-pkg/http/testify"
+
+func main() {
+  client := testify.NewHTTPClient()
+
+  // do something with your net/http client
+  // read documentation for more details
+}
+
 ```
 
 ## Contributing
