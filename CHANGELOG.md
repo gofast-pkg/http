@@ -1,5 +1,5 @@
 # CHANGELOG
 
-## v0.0.3
+## v0.1.0
 
-- add community standard
+- implement testify to have a http client tester
