@@ -1,11 +1,11 @@
 package testify
 
 import (
-	"errors"
 	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewHTTPClient(t *testing.T) {
@@ -16,7 +16,7 @@ func TestNewHTTPClient(t *testing.T) {
 		if assert.NotNil(t, c) {
 			assert.Empty(t, c.callers)
 			assert.NotNil(t, c.defaultResponse)
-			assert.EqualValues(t, t, c.t)
+			assert.Equal(t, t, c.t)
 		}
 	})
 }
@@ -31,7 +31,17 @@ func TestHttpClient_ExpectedCalls(t *testing.T) {
 
 func TestHttpClient_AddCall(t *testing.T) {
 	t.Run("Should be ok", func(t *testing.T) {
-		client := NewHTTPClient(t)
+		header := make(http.Header)
+		header.Set("Content-Type", "application/json")
+		c := &httpClient{
+			t: t,
+			defaultResponse: &http.Response{
+				StatusCode: http.StatusOK,
+				Status:     "200 OK",
+				Body:       nil,
+				Header:     header,
+			},
+		}
 
 		caller := Caller{
 			ExpectedRequest: nil,
@@ -39,12 +49,9 @@ func TestHttpClient_AddCall(t *testing.T) {
 			Err:             nil,
 		}
 
-		client.AddCall(caller)
+		c.AddCall(caller)
 
-		c := client.(*httpClient)
-		if assert.NotNil(t, c) {
-			assert.Len(t, c.callers, 1)
-		}
+		assert.Len(t, c.callers, 1)
 	})
 }
 
@@ -53,17 +60,14 @@ func TestHttpClient_SetDefaultResponse(t *testing.T) {
 		client := NewHTTPClient(t)
 
 		err := client.SetDefaultResponse(nil)
-		if assert.Error(t, err) {
-			assert.ErrorIs(t, err, ErrNilResponse)
-		}
+		require.ErrorIs(t, err, ErrNilResponse)
 	})
 	t.Run("Should be ok", func(t *testing.T) {
 		client := NewHTTPClient(t)
 
 		err := client.SetDefaultResponse(&http.Response{})
-		if assert.NoError(t, err) {
-			assert.EqualValues(t, &http.Response{}, client.(*httpClient).defaultResponse)
-		}
+		require.NoError(t, err)
+		assert.Equal(t, &http.Response{}, client.(*httpClient).defaultResponse)
 	})
 }
 
@@ -78,18 +82,29 @@ func TestHttpClient_Client(t *testing.T) {
 func TestHttpClient_RoundTrip(t *testing.T) {
 	t.Run("Should be ok with default response", func(t *testing.T) {
 		req := &http.Request{}
-		client := NewHTTPClient(t)
-		client.AddCall(Caller{
+		header := make(http.Header)
+		header.Set("Content-Type", "application/json")
+		c := &httpClient{
+			t: t,
+			defaultResponse: &http.Response{
+				StatusCode: http.StatusOK,
+				Status:     "200 OK",
+				Body:       nil,
+				Header:     header,
+			},
+		}
+		c.AddCall(Caller{
 			ExpectedRequest: req,
 		})
 
-		resp, err := client.RoundTrip(req)
-		if assert.NoError(t, err) {
+		resp, err := c.RoundTrip(req)
+		defer func() {
 			if resp.Body != nil {
-				defer resp.Body.Close()
+				assert.NoError(t, resp.Body.Close())
 			}
-			assert.EqualValues(t, client.(*httpClient).defaultResponse, resp)
-		}
+		}()
+		require.NoError(t, err)
+		assert.Equal(t, c.defaultResponse, resp)
 	})
 	t.Run("Should be ok with custom response", func(t *testing.T) {
 		req := &http.Request{}
@@ -100,30 +115,24 @@ func TestHttpClient_RoundTrip(t *testing.T) {
 		})
 
 		resp, err := client.RoundTrip(req)
-		if assert.NoError(t, err) {
+		defer func() {
 			if resp.Body != nil {
-				defer resp.Body.Close()
+				assert.NoError(t, resp.Body.Close())
 			}
-			assert.EqualValues(t, &http.Response{StatusCode: http.StatusCreated}, resp)
-		}
+		}()
+		require.NoError(t, err)
+		assert.Equal(t, &http.Response{StatusCode: http.StatusCreated}, resp)
 	})
 	t.Run("Should be ok with custom error", func(t *testing.T) {
-		errCustom := errors.New("custom error")
 		req := &http.Request{}
 		client := NewHTTPClient(t)
 		client.AddCall(Caller{
 			ExpectedRequest: req,
-			Err:             errCustom,
+			Err:             assert.AnError,
 		})
 
 		resp, err := client.RoundTrip(req)
-		if assert.Error(t, err) {
-			assert.Nil(t, resp)
-			assert.ErrorIs(t, err, errCustom)
-			assert.Nil(t, resp)
-		}
-		if resp != nil {
-			defer resp.Body.Close()
-		}
+		assert.Nil(t, resp)
+		require.ErrorIs(t, err, assert.AnError)
 	})
 }

@@ -2,13 +2,13 @@ package testify_test
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/gofast-pkg/http/testify"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -16,7 +16,7 @@ const (
 	urlTestRequest2 = "http://example.com/request_2"
 )
 
-// testedCode simulates a code that makes two http requests
+// testedCode simulates a code that makes two http requests.
 func testedCode(ctx context.Context, c *http.Client) error {
 	var err error
 	var r1 *http.Request
@@ -24,29 +24,37 @@ func testedCode(ctx context.Context, c *http.Client) error {
 	var resp1 *http.Response
 	var resp2 *http.Response
 
-	if r1, err = http.NewRequestWithContext(ctx, http.MethodGet, urlTestRequest1, nil); err != nil {
+	if r1, err = http.NewRequestWithContext(ctx, http.MethodGet, urlTestRequest1, http.NoBody); err != nil {
 		return err
 	}
-	if r2, err = http.NewRequestWithContext(ctx, http.MethodGet, urlTestRequest2, nil); err != nil {
+	if r2, err = http.NewRequestWithContext(ctx, http.MethodGet, urlTestRequest2, http.NoBody); err != nil {
 		return err
 	}
 
 	if resp1, err = c.Do(r1); err != nil {
 		return err
 	}
-	defer resp1.Body.Close()
+	defer func() {
+		if err = resp1.Body.Close(); err != nil {
+			fmt.Printf("fail to close body: %s", err.Error())
+		}
+	}()
 
 	if resp1.StatusCode != http.StatusOK {
-		return errors.New("unexpected status code")
+		return assert.AnError
 	}
 
 	if resp2, err = c.Do(r2); err != nil {
 		return err
 	}
-	defer resp2.Body.Close()
+	defer func() {
+		if err := resp2.Body.Close(); err != nil {
+			fmt.Printf("fail to close body: %s", err.Error())
+		}
+	}()
 
 	if resp2.StatusCode != http.StatusCreated {
-		return errors.New("unexpected status code")
+		return assert.AnError
 	}
 
 	return nil
@@ -64,14 +72,14 @@ func ExampleNewHTTPClient() {
 		ctx,
 		http.MethodGet,
 		urlTestRequest1,
-		nil); err != nil {
+		http.NoBody); err != nil {
 		t.Fatal(err)
 	}
 	if expectedR2, err = http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
 		urlTestRequest2,
-		nil); err != nil {
+		http.NoBody); err != nil {
 		t.Fatal(err)
 	}
 
@@ -86,10 +94,8 @@ func ExampleNewHTTPClient() {
 	})
 
 	err = testedCode(ctx, client.Client())
-	if assert.NoError(t, err) {
-		fmt.Println("no error")
-		client.ExpectedCalls()
-	}
+	fmt.Printf("%v", err)
+	require.NoError(t, err)
 	// Output:
-	// no error
+	// <nil>
 }
