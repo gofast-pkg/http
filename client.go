@@ -1,4 +1,4 @@
-// Package http provides tooling around http in Go configured for production usage
+// Package http provides tooling around http in Go configured for production usage.
 package http
 
 import (
@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Constants for http client configuration ready for production
+// Constants for http client configuration ready for production.
 const (
 	timeoutInMs                   = 10000
 	dialerTimeoutInSecond         = 30
@@ -19,7 +19,7 @@ const (
 	maxIdleConnsPerHost           = 100
 )
 
-// NewClient returns a new http client configured for production usage
+// NewClient returns a new http client configured for production usage.
 func NewClient() *http.Client {
 	return &http.Client{
 		Timeout: time.Duration(timeoutInMs) * time.Millisecond,

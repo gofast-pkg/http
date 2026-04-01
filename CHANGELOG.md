@@ -1,5 +1,8 @@
 # CHANGELOG
 
-## v0.1.0
+## v0.2.0
 
-- implement testify to have a http client tester
+- implement unexpected response reader
+- update codesystem
+- update unit tests
+- update examples
